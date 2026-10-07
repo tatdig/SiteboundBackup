@@ -68,8 +68,15 @@ into a new VM with the network off):
 * **File-level restore** on a per-site **restore workstation** (an RDP desktop):
   `vmbackup-browse open <machine>` opens a backup read-only in seconds — VM disks
   through libguestfs, a Windows computer's backup through every layer of its LUN
-  (and older versions through its shadow copies) — from a share the NAS itself
-  keeps read-only.
+  (and older versions through its shadow copies), a vSphere incremental as its
+  whole chain served as one disk without copying it — from a share the NAS
+  itself keeps read-only. For administrators there is an **"Open a backup"**
+  desktop menu: pick the machine, then the date (newest first, marked full or
+  incremental), and the file manager opens on that backup; a right-click
+  **Copy to scratch** takes files out, and the last few backups reopen in one
+  step. Each site's workstation is built by **one script** onto its own
+  hypervisor, and it mounts the repository only after proving the NAS refuses a
+  write.
 
 ### The manager
 
