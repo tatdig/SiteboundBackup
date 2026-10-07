@@ -1,4 +1,4 @@
-# OmniBackup
+# Sitebound Backup
 
 A self-hosted backup system built as **one manager and many agents**: the manager
 holds the schedules, the catalogue and the web interface; each agent backs up
@@ -14,7 +14,7 @@ back. Backups never cross a site boundary, and neither do restores.
 
 Licensed under the [GNU AGPL-3.0](LICENSE).
 
-![The OmniBackup dashboard, shown with example data](docs/screenshots/dashboard.png)
+![The Sitebound Backup dashboard, shown with example data](docs/screenshots/dashboard.png)
 
 *The manager's dashboard, shown with example data. Every page: [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md).*
 
@@ -88,7 +88,7 @@ Licensed under the [GNU AGPL-3.0](LICENSE).
 ## What is in this repository
 
 ```
-src/omnibackup/
+src/sitebound/
   dockercapture.py     capture one Docker project: definition, data, images, dumps
   docker_inventory.py  list the host's projects and their mounts
   digest.py            the file and sparse digests every run records
