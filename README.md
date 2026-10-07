@@ -14,6 +14,10 @@ back. Backups never cross a site boundary, and neither do restores.
 
 Licensed under the [GNU AGPL-3.0](LICENSE).
 
+![The OmniBackup dashboard, shown with example data](docs/dashboard.png)
+
+*The manager's dashboard, shown with example data.*
+
 ---
 
 ## What the whole system does
