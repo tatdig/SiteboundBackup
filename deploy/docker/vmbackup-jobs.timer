@@ -1,0 +1,15 @@
+[Unit]
+Description=Claim dispatched jobs every minute
+Documentation=file:/opt/vmbackup/README.md
+
+[Timer]
+OnBootSec=2min
+# A minute is how long a dispatched job waits before it starts, and the tick is
+# free when the queue is empty. The manager decides *when* work exists; this only
+# decides how quickly the agent notices.
+OnUnitActiveSec=1min
+Persistent=true
+RandomizedDelaySec=10
+
+[Install]
+WantedBy=timers.target

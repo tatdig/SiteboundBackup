@@ -1,0 +1,28 @@
+[Unit]
+Description=Re-read every stored backup against its recorded digests
+Documentation=file:/opt/vmbackup/README.md
+After=network-online.target remote-fs.target vmbackup-jobs.service
+RequiresMountsFor=@MOUNT@
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+Environment=PYTHONUNBUFFERED=1
+# The site's own sweep (site-jobs.py scrub). It only reads the repository; it
+# writes /var/lib/vmbackup/scrub.json, which the report carries to the manager.
+# Each run is checked under the jobs' work lock, so it never reads a LUN while a
+# capture writes it. Low priority: a sweep that is late is merely late.
+ExecStart=/opt/vmbackup/venv/bin/python /usr/local/bin/vmbackup-site-jobs.py scrub --root @ROOT@
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=12h
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ReadWritePaths=/var/lib/vmbackup

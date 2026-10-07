@@ -1,0 +1,21 @@
+#!/bin/bash
+# The update key's forced command (authorized_keys of the agent account, from
+# the manager only): one agent bundle on stdin, nothing else. It is stored under
+# /var/lib/vmbackup/updates and handed to the root-owned apply script, the only
+# thing the account may run with sudo (/etc/sudoers.d/vmbackup-agent-update).
+# Anything typed after `ssh ... ` is ignored: SSH_ORIGINAL_COMMAND is not used.
+set -euo pipefail
+LIMIT=$((512 * 1024 * 1024))
+DIR=/var/lib/vmbackup/updates
+umask 077
+mkdir -p "$DIR"
+stamp=$(date -u +%Y%m%dT%H%M%SZ)
+bundle=$DIR/bundle-$stamp.tgz
+head -c $((LIMIT + 1)) > "$bundle"
+size=$(stat -c %s "$bundle")
+if [ "$size" -gt "$LIMIT" ] || [ "$size" -eq 0 ]; then
+    rm -f "$bundle"
+    echo "refused: the bundle must be 1 byte to 512 MiB, got $size" >&2
+    exit 1
+fi
+exec sudo -n /usr/local/sbin/vmbackup-agent-update-apply "$bundle"

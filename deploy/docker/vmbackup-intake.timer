@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the vmbackup docker agent's report pass every 15 minutes
+Documentation=file:/opt/vmbackup/README.md
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
