@@ -8,7 +8,7 @@
 set -euo pipefail
 COMMIT=${1:-HEAD}
 HOST=${2:-docker.example.lan}
-ACCOUNT=${3:-omnibackup}
+ACCOUNT=${3:-sitebound}
 KEY=/etc/vmbackup/docker-update.key
 [ -r "$KEY" ] || { echo "no update key at $KEY (see docs/CONTAINERS.md, Updates)" >&2; exit 1; }
 WORK=$(mktemp -d)

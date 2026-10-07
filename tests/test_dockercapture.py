@@ -17,8 +17,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from omnibackup import dockercapture
-from omnibackup.dockercapture import capture_docker, combined_digest
+from sitebound import dockercapture
+from sitebound.dockercapture import capture_docker, combined_digest
 
 
 

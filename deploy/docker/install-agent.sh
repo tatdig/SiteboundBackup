@@ -4,8 +4,8 @@
 # repository on an NFS share.
 #
 # Run from the unpacked bundle, as root, on the Docker host:
-#     sudo ./install-agent.sh [--site DOCKER-01] [--user omnibackup] [--manager-from 192.0.2.1]
-#                             [--nas 192.0.2.10:/mnt/tank/omnibackup-docker]
+#     sudo ./install-agent.sh [--site DOCKER-01] [--user sitebound] [--manager-from 192.0.2.1]
+#                             [--nas 192.0.2.10:/mnt/tank/sitebound-docker]
 #                             [--mount /mnt/vmbackup-docker] [--reseed-projects]
 #
 # What it installs, and nothing else (the host's own packages, network and
@@ -19,7 +19,7 @@
 #   an fstab line for the share, mounted at --mount; the repository is its root
 #   vmbackup-intake.{service,timer}   the report pass, every 15 minutes, as root
 #   vmbackup-jobs.{service,timer}     runs dispatched jobs, every minute, as root
-#   an account (default `omnibackup`) with two keys, both accepted only from the
+#   an account (default `sitebound`) with two keys, both accepted only from the
 #   manager: the fetch key, forced to `cat /var/lib/vmbackup/report.json`, and
 #   the dispatch key, forced to queue a job document or print results.
 #
@@ -27,9 +27,9 @@
 set -euo pipefail
 
 SITE=DOCKER-01
-ACCOUNT=omnibackup
+ACCOUNT=sitebound
 MANAGER_FROM=192.0.2.1
-NAS=192.0.2.10:/mnt/tank/omnibackup-docker
+NAS=192.0.2.10:/mnt/tank/sitebound-docker
 MOUNT=/mnt/vmbackup-docker
 RESEED=0
 while [ $# -gt 0 ]; do

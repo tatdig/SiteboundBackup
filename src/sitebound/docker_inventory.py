@@ -1,6 +1,6 @@
 """The Docker projects a host holds: what the Docker agent can be asked to capture.
 
-Extracted from OmniBackup's inventory module, which lists the machines every kind
+Extracted from Sitebound Backup's inventory module, which lists the machines every kind
 of agent can capture (vSphere, Hyper-V, Proxmox, Windows computers, Docker); only
 the Docker part is published here.
 """
