@@ -14,9 +14,9 @@ back. Backups never cross a site boundary, and neither do restores.
 
 Licensed under the [GNU AGPL-3.0](LICENSE).
 
-![The OmniBackup dashboard, shown with example data](docs/dashboard.png)
+![The OmniBackup dashboard, shown with example data](docs/screenshots/dashboard.png)
 
-*The manager's dashboard, shown with example data.*
+*The manager's dashboard, shown with example data. Every page: [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md).*
 
 ---
 
@@ -100,6 +100,7 @@ deploy/docker/         the agent's installer, systemd units, example projects.ya
                        scripts on the agent side)
 docs/CONTAINERS.md     the Docker agent's design
 docs/ARCHITECTURE.md   the manager, the agents, the job protocol
+docs/SCREENSHOTS.md    every page of the web interface, with example data
 ```
 
 Internally the product is called `vmbackup` (its first life was a VMware
