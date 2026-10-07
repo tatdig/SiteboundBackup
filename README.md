@@ -125,3 +125,14 @@ Internally the product is called `vmbackup` (its first life was a VMware
 appliance), which is why paths and units say `/etc/vmbackup`, `vmbackup-jobs`.
 
 Running the tests: `python -m pytest tests` (Python 3.9+, `pytest`).
+
+## How this project is built
+
+Much of the code, tests and documentation — here and in the private system this
+excerpt comes from — was written with an AI coding assistant (Anthropic's
+Claude, through Claude Code), directed by the maintainer: the maintainer sets
+the goals and the design decisions, approves every change to running systems,
+tests on real infrastructure and reviews the results. In the full system,
+AI-assisted commits carry a `Co-Authored-By: Claude` line. The commits in this
+repository so far were all prepared with the assistant, although their messages
+do not say so; from now on they will.
