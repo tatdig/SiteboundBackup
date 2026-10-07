@@ -32,6 +32,17 @@ Licensed under the [GNU AGPL-3.0](LICENSE).
 | **Docker** | Compose projects and standalone containers | Each volume and bind mount as `tar` + zstd, the project's definition (inspects, Compose files, `.env`), locally built images by `docker save`; **dump / pause / stop / crash** consistency per project — *this repository* |
 | **Windows computers** | Physical PCs and laptops, including Windows Home | Windows' own system-image backup (`wbadmin`, VSS) onto a **per-computer iSCSI LUN** that is enabled only while the image is taken; older versions kept as shadow copies on the LUN |
 
+**Planned agents**, built the same way (own site, own storage, restores always
+into a new VM with the network off):
+
+* **libvirt / KVM** on plain Linux hosts: `virsh backup-begin` over NBD, with
+  checkpoints for true incrementals; boot checks through the QEMU guest agent.
+* **XCP-ng** (XAPI): snapshot and raw export of each disk, changed-block tracking
+  for incrementals; boot checks through the guest tools.
+* **KubeVirt** (possibly): VM snapshot and export from inside the cluster with a
+  narrowly scoped service account; restores and boot checks in an isolated
+  namespace.
+
 ### Integrity, every step
 
 * **A digest per stored file**, recorded when it is written, with an **extent
