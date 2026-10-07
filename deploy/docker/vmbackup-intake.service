@@ -1,0 +1,32 @@
+[Unit]
+Description=vmbackup docker agent: inventory the host and write the report
+Documentation=file:/opt/vmbackup/README.md
+After=network-online.target remote-fs.target docker.service
+Wants=network-online.target
+# The repository's share: a report read from an empty mount point would say the
+# backups are gone.
+RequiresMountsFor=@MOUNT@
+
+[Service]
+Type=oneshot
+# Root, because the inventory reads the Docker socket, which is root on this host
+# anyway. Nothing here listens on the network; the manager only ever reads the
+# report this writes, through a key pinned to `cat` (docs/CONTAINERS.md).
+User=root
+Group=root
+Environment=PYTHONUNBUFFERED=1
+# @SITE@, @ROOT@ and @MOUNT@ are filled in by install-agent.sh. --keep 0: a
+# capture keeps its own runs (site.yaml docker.keep, per project), and the report
+# pass must not prune them to another number.
+ExecStart=/opt/vmbackup/venv/bin/python /usr/local/bin/vmbackup-site-intake.py --hypervisor docker --site-name @SITE@ --root @ROOT@ --incoming /var/lib/vmbackup/incoming --keep 0 --report-file /var/lib/vmbackup/report.json
+SuccessExitStatus=0
+TimeoutStartSec=900
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/lib/vmbackup /var/log/vmbackup @MOUNT@
+
+[Install]
+WantedBy=multi-user.target

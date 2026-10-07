@@ -1,0 +1,58 @@
+# The Docker agent's per-project settings (docs/CONTAINERS.md). install-agent.sh
+# puts this under `docker:` in /etc/vmbackup/site.yaml when that file has none
+# yet, or when run with --reseed-projects; otherwise site.yaml is the one to
+# edit, and a re-install keeps it.
+#
+# Which projects are captured, and when, is the manager's schedule. This says
+# how: runs kept, mounts not archived, and the consistency mode:
+#   dump   run each dump inside its container (docker exec ... sh -c COMMAND),
+#          its output stored in the run, then archive the data as usual
+#   pause  docker pause the project's containers while their data is read
+#   stop   docker stop them while their data is read, then start them again
+#   (none) crash-consistent: as if the power had been pulled mid-read
+# A dump names its container by Compose service (stable across recreations)
+# or by container name, and may run as a user inside it.
+keep: 2
+projects:
+  gitlab:
+    # The database by pg_dump, not gitlab-backup: that would write a second
+    # copy of every repository into the data volume, which is archived anyway.
+    mode: dump
+    dumps:
+      - service: web
+        user: gitlab-psql
+        command: exec /opt/gitlab/embedded/bin/pg_dump -h /var/opt/gitlab/postgresql -d gitlabhq_production
+        file: gitlabhq_production.sql
+  ipam:
+    mode: dump
+    dumps:
+      - service: mariadb
+        command: 'exec "$(command -v mariadb-dump || command -v mysqldump)" --all-databases --single-transaction --routines --events -uroot -p"${MARIADB_ROOT_PASSWORD:-$MYSQL_ROOT_PASSWORD}"'
+        file: all-databases.sql
+  app-with-postgres:
+    mode: dump
+    # A volume nobody needs back (rotating logs) is excluded, and said so.
+    exclude: [app-with-postgres_logs]
+    dumps:
+      - service: db
+        command: 'exec pg_dumpall -U "${POSTGRES_USER:-postgres}"'
+        file: all-databases.sql
+  registry:
+    mode: pause
+  game-server:
+    mode: pause
+
+# The host's own files a rebuild needs and no project backup carries: build
+# contexts, the registry login, network connections, the Docker apt source and
+# key. Listed by the agent as one more item, `host-files`, which the manager
+# schedules like a project. Globs allowed.
+host:
+  paths:
+    - /root/docker-*
+    - /root/.docker
+    - /etc/NetworkManager/system-connections
+    - /etc/fstab
+    - /etc/hosts
+    - /etc/apt/sources.list.d
+    - /etc/apt/keyrings
+    - /etc/docker

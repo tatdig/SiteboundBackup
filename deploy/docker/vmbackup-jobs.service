@@ -1,0 +1,35 @@
+[Unit]
+Description=vmbackup docker agent: claim and run jobs the manager dispatched
+Documentation=file:/opt/vmbackup/README.md
+After=network-online.target remote-fs.target docker.service
+Wants=network-online.target
+# The repository's share. Without it a capture would fill the local disk under
+# the mount point instead, so the job does not start at all.
+RequiresMountsFor=@MOUNT@
+
+[Service]
+Type=oneshot
+# Root, because a capture reads the Docker socket and every volume, which is
+# root on this host anyway. The manager reaches this only through the forced
+# command that queues a job document; it never runs anything here directly.
+User=root
+Group=root
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/vmbackup/venv/bin/python /usr/local/bin/vmbackup-site-jobs.py run --root @ROOT@
+SuccessExitStatus=0
+# The biggest project (GitLab, ~7 GiB) archives in minutes; this is the ceiling.
+TimeoutStartSec=5400
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=read-only
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+ReadWritePaths=/var/lib/vmbackup /var/log/vmbackup @MOUNT@
+
+[Install]
+WantedBy=multi-user.target

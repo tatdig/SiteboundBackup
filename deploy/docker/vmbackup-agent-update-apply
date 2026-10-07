@@ -1,0 +1,43 @@
+#!/bin/bash
+# Apply one agent bundle that the update key delivered (vmbackup-agent-update-forced).
+# Run as root through sudo, with exactly one argument: a bundle file under
+# /var/lib/vmbackup/updates. It is copied to a root-only directory first, so the
+# account that delivered it cannot change it while it is checked or installed;
+# every file must match the bundle's SHA256SUMS; then the bundle's installer runs
+# with the settings this agent was installed with (/etc/vmbackup/docker-agent.args,
+# written by install-agent.sh) — never --reseed-projects. Logged to the journal
+# and /var/log/vmbackup/updates.log.
+set -euo pipefail
+LOG=/var/log/vmbackup/updates.log
+mkdir -p /var/log/vmbackup
+# To the caller (the manager reads it), the log file and the journal.
+exec > >(tee -a "$LOG" >(logger -t vmbackup-agent-update)) 2>&1
+echo "== $(date -u +%FT%TZ) update requested by ${SUDO_USER:-?}"
+
+[ $# -eq 1 ] || { echo "refused: one bundle path expected"; exit 2; }
+case "$1" in
+    /var/lib/vmbackup/updates/bundle-*.tgz) ;;
+    *) echo "refused: $1 is not a delivered bundle"; exit 2 ;;
+esac
+[ -f "$1" ] && [ ! -L "$1" ] || { echo "refused: $1 is not a regular file"; exit 2; }
+ARGS=/etc/vmbackup/docker-agent.args
+[ -f "$ARGS" ] || { echo "refused: $ARGS is missing; run install-agent.sh by hand once"; exit 2; }
+
+WORK=$(mktemp -d /root/vmbackup-update.XXXXXX)
+trap 'rm -rf "$WORK"' EXIT
+cp --no-preserve=ownership "$1" "$WORK/bundle.tgz"
+rm -f "$1"
+echo "bundle sha256 $(sha256sum "$WORK/bundle.tgz" | cut -c1-16)"
+tar -xzf "$WORK/bundle.tgz" -C "$WORK" --no-same-owner --no-same-permissions
+B=$WORK/docker-agent
+[ -f "$B/SHA256SUMS" ] && [ -f "$B/install-agent.sh" ] || { echo "refused: not an agent bundle"; exit 2; }
+# Every file in the bundle must be listed and match: nothing extra runs.
+( cd "$B" && sha256sum --quiet -c SHA256SUMS ) || { echo "refused: checksums do not match"; exit 2; }
+listed=$(cd "$B" && cut -d' ' -f3- SHA256SUMS | sed 's#^\./##' | sort)
+present=$(cd "$B" && find . -type f ! -name SHA256SUMS | sed 's#^\./##' | sort)
+[ "$listed" = "$present" ] || { echo "refused: files in the bundle that SHA256SUMS does not list"; exit 2; }
+chmod 755 "$B/install-agent.sh"
+mapfile -t settings < <(grep -v '^#' "$ARGS" | tr ' ' '\n' | grep -v '^$' | grep -v -- '--reseed-projects')
+echo "installing with: ${settings[*]}"
+"$B/install-agent.sh" "${settings[@]}"
+echo "== $(date -u +%FT%TZ) update applied"

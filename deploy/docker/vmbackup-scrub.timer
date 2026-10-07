@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily sweep of this site's stored backups
+
+[Timer]
+# Away from the 02:00 captures and the 23:00 UTC Hyper-V push. Persistent: a
+# sweep missed while the agent was down runs when it comes back.
+OnCalendar=*-*-* 12:30:00
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
