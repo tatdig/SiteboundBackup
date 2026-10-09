@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/sitebound-mark.svg" width="96" height="96" alt="Sitebound Backup: a disk platter inside the dashed boundary of its site"></p>
+
 # Sitebound Backup
 
 A self-hosted backup system built as **one manager and many agents**: the manager
