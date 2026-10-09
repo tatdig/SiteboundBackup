@@ -20,6 +20,9 @@ Licensed under the [GNU AGPL-3.0](LICENSE).
 
 *The manager's dashboard, shown with example data. Every page: [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md).*
 
+**Guides:** [administrator guide](docs/ADMIN-GUIDE.md) (building and running it) ·
+[operator guide](docs/OPERATOR-GUIDE.md) (checking, backing up, getting things back).
+
 ---
 
 ## What the whole system does
@@ -30,9 +33,10 @@ Licensed under the [GNU AGPL-3.0](LICENSE).
 |---|---|---|
 | **vSphere** | VMs through vCenter or ESXi | Snapshot, VDDK over NBD, raw sparse images; **true incrementals** from Changed Block Tracking; the VM's definition (`.vmx`, `.nvram`) kept per run |
 | **Hyper-V** | VMs on a Windows Hyper-V host | The host pushes a frozen VHDX (checkpoint) to the agent over **SFTP only, in a chroot**; the agent stores it as a raw sparse image |
-| **Proxmox VE** | QEMU guests | The node's own `vzdump` writes to an NFS storage that *is* the agent's share; the agent streams the VMA archive through its **own VMA reader** into one raw sparse disk per device plus the guest's config |
+| **Proxmox VE** | QEMU guests | The node's own `vzdump` writes to an NFS storage that *is* the agent's share; the agent streams the VMA archive through its **own VMA reader** into one raw sparse disk per device plus the guest's config. **True incrementals** through Proxmox's backup-provider API: a small storage plugin on the node hands over only what QEMU's dirty bitmap marked, filed as chains |
 | **Docker** | Compose projects and standalone containers | Each volume and bind mount as `tar` + zstd, the project's definition (inspects, Compose files, `.env`), locally built images by `docker save`; **dump / pause / stop / crash** consistency per project — *this repository* |
 | **Windows computers** | Physical PCs and laptops, including Windows Home | Windows' own system-image backup (`wbadmin`, VSS) onto a **per-computer iSCSI LUN** that is enabled only while the image is taken; older versions kept as shadow copies on the LUN |
+| **Linux computers** | Physical machines and hypervisor hosts, any distribution | **Pulled over SSH** by the same agent: the disk layout and one GNU tar per filesystem; the computer runs one read-only script its key is pinned to, and never reaches the storage. Restored on bare metal from SystemRescue with the same UUIDs, LVM and filesystem features |
 
 **Planned agents**, built the same way (own site, own storage, restores always
 into a new VM with the network off):
@@ -79,6 +83,14 @@ into a new VM with the network off):
   step. Each site's workstation is built by **one script** onto its own
   hypervisor, and it mounts the repository only after proving the NAS refuses a
   write.
+* **Bare-metal recovery from the restore workstation**: *Prepare computer
+  recovery* shares a computer's backup read-only over SMB with a one-time account
+  and shows the steps — for Windows, `wbadmin` and `bcdboot` from the installation
+  media's command prompt, wrapped in one script; for Linux, one script from
+  SystemRescue. Proven by restoring onto empty VMs that then booted.
+* **Malware scanning**: each restore workstation scans backups with ClamAV —
+  the newest of every machine nightly, any one on request — opened read-only the
+  same way, so a restore can be chosen **clean**.
 
 ### The manager
 
@@ -121,6 +133,8 @@ deploy/docker/         the agent's installer, systemd units, example projects.ya
 docs/CONTAINERS.md     the Docker agent's design
 docs/ARCHITECTURE.md   the manager, the agents, the job protocol
 docs/SCREENSHOTS.md    every page of the web interface, with example data
+docs/ADMIN-GUIDE.md    building and running the whole system
+docs/OPERATOR-GUIDE.md using it day to day
 ```
 
 Internally the product is called `vmbackup` (its first life was a VMware
