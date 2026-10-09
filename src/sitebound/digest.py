@@ -142,7 +142,7 @@ def sparse_digest(
     ``regions`` is a hint, never a definition: it says where data *may* be, and
     the digest hashes a block only when that block actually holds a non-zero
     byte. So any superset of the non-zero blocks produces the same value — which
-    is what lets a recorded map (E21) stand in for the kernel's hole reporting
+    is what lets a recorded map stand in for the kernel's hole reporting
     without changing a single stored digest. When it is omitted the kernel is
     asked, and a filesystem that cannot answer means reading the whole file.
 

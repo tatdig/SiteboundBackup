@@ -135,6 +135,7 @@ docs/ARCHITECTURE.md   the manager, the agents, the job protocol
 docs/SCREENSHOTS.md    every page of the web interface, with example data
 docs/ADMIN-GUIDE.md    building and running the whole system
 docs/OPERATOR-GUIDE.md using it day to day
+docs/TODO.md           plans to onboard more hypervisors
 ```
 
 Internally the product is called `vmbackup` (its first life was a VMware
