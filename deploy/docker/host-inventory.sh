@@ -60,7 +60,10 @@ done
 run ls -la /root
 
 section "data directories the containers use"
-run du -sh /var/data/* /srv/* 2>/dev/null
+# The host folders the containers bind-mount, wherever they are, and the usual places.
+run du -sh $(docker ps -aq | xargs -r docker inspect --format \
+    '{{range .Mounts}}{{if eq .Type "bind"}}{{.Source}}{{"\n"}}{{end}}{{end}}' | sort -u) \
+    /var/data/* /srv/* 2>/dev/null
 
 section "mounts"
 run cat /etc/fstab
