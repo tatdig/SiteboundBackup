@@ -142,3 +142,4 @@ Internally the product is called `vmbackup` (its first life was a VMware
 appliance), which is why paths and units say `/etc/vmbackup`, `vmbackup-jobs`.
 
 Running the tests: `python -m pytest tests` (Python 3.9+, `pytest`).
+
